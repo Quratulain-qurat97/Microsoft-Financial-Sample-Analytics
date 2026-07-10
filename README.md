@@ -99,10 +99,9 @@ All 10 business questions were answered using MySQL before building the dashboar
 ## Repository Structure
 
 ```
-Finance-Dashboard-Analytics/
+Microsoft-Financial-Sample-Analytics/
 │
 ├── Finance_Dashboard.pbix          # Power BI dashboard file
-├── Finance_Dashboard.pdf           # Static PDF export of all 5 pages
 ├── finance_analysis.sql            # All 10 SQL queries
 ├── Financial Sample.xlsx           # Source dataset
 └── README.md                       # Project documentation
