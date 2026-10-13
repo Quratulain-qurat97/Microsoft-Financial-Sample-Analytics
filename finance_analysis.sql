@@ -117,7 +117,7 @@ ORDER BY Profit DESC;
 
 
 
--- Q9.Discount rate correlate with profit margin across segments?
+-- Q9. Profit margin by segment and discount band
 SELECT 
 Segment,`Discount Band`,
 ROUND(SUM(Profit)/SUM(Sales)*100,2) AS Profit_margin
