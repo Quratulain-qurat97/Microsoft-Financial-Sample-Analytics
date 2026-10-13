@@ -1,120 +1,55 @@
-# Microsoft Financial Sample Analytics
+# Microsoft Financial Sample: SQL, pandas and Power BI audit
 
-An end-to-end data analytics project analyzing the Microsoft Financial Sample dataset using **MySQL** for data analysis and **Power BI** for interactive dashboard visualization.
+Analysis of Microsoft's Financial Sample dataset (700 rows, 5 segments, 5 countries, 6 products, September 2013 to December 2014). Built with MySQL and Power BI, then re-verified independently in pandas. Headline totals reconcile across all three tools.
 
----
+## Dashboard
 
-## Project Overview
+![Overview](screenshots/01-overview.png)
+![Executive Summary](screenshots/02-executive-summary.png)
+![Country Performance](screenshots/03-country-performance.png)
+![Product Insights](screenshots/04-product-insights.png)
+![Insights and Analysis](screenshots/05-insights-analysis.png)
 
-This project explores global sales performance across 5 countries, 6 products, and 5 customer segments — covering revenue trends, profit margin efficiency, discount impact, and product-level cost analysis.
+## Key findings
 
-**Dataset:** Microsoft Financial Sample (700 rows, single flat table)  
-**Tools:** MySQL Workbench · Power BI Desktop · Microsoft Excel  
-**Scope:** September 2013 – December 2014 (2013 data covers Sep–Dec only)  
-**Last Updated:** July 10, 2026
+- **Totals:** $118.73M revenue, $16.89M profit, 14.2% margin.
+- **Enterprise is the only loss-making segment:** -3.1% margin on $19.6M of revenue, negative in all five countries. Its margin is +4.0% with no discount, -3.0% at Medium and -9.5% at High discounts.
+- **Concentration:** Government and Small Business generate about 80% of revenue. Channel Partners has the highest margin (73.1%) but only 1.5% of revenue.
+- **Volume is not profit:** the United States leads revenue ($25.03M, only 0.6% ahead of Canada) but has the lowest country margin (11.97%). France Government is the most profitable country-segment pair ($2.71M).
+- **Products:** Paseo has the most revenue ($33.01M, 14.53% margin). Amarilla has the highest margin (15.86%), Velo the lowest (12.64%). Margins across products span only about 3 points.
+- **Timing:** October 2014 was the peak month ($12.4M, about half from Government). Comparing September to December only, revenue rose from $26.4M (2013) to $36.2M (2014), +36.9%; November fell 25.9% and December rose 123.5%.
+- **Discounts:** discount rates are similar across segments (6.9% to 7.8% of gross sales, 7.2% overall) while margins range from -3% to 73%, so discount rate alone does not explain the segment gaps. Within a segment, margin falls as the discount band rises, but because COGS does not change with the discount and Sales is net of it, this is largely arithmetic rather than a behavioural finding.
 
----
+## Audit log: errors found and fixed
 
-## Business Questions
+1. **Cost chart summed a unit price.** "Total manufacturing cost" added the per-unit Manufacturing Price once per row (for example VTT: 250 x 109 rows = 27,250). It was replaced with COGS ($101.83M total). The corrected ranking differs: Paseo has the largest COGS ($28.2M).
+2. **Hardcoded constant.** The price-to-cost ratio used a fixed 350 instead of the Sale Price column in both SQL and DAX. It was corrected, then removed from the dashboard because Manufacturing Price does not reconcile with COGS (see data notes).
+3. **Discount rate definition.** The dashboard divided discounts by net Sales (7.8%). It now uses gross sales (7.2%), the standard definition.
+4. **Partial year.** 2013 contains only September to December. Pooled month rankings double-counted those months and year-over-year comparisons were not like-for-like. Both were replaced with like-for-like comparisons.
+5. **Dashboard takeaways.** Every claim in the written commentary was checked against the data and several were corrected (for example the size of the US revenue lead and the direction of Enterprise's discount effect).
 
-1. What is the total revenue by country and segment?
-2. What is the profit and profit margin by country and segment?
-3. Which product has the highest profit margin despite high manufacturing cost?
-4. How do discount bands affect both units sold and profit margin?
-5. Which months consistently generate the highest and lowest revenue?
-6. What is the best and least profitable year for the company?
-7. Which products have the lowest sale price to manufacturing price ratio?
-8. Which country and segment combination drives the most profit?
-9. How does discount rate correlate with profit margin across segments?
-10. What is the revenue concentration risk across segments?
+## Data notes
 
----
+- **Manufacturing Price does not reconcile with COGS.** Implied unit COGS (COGS / Units Sold) ranges from $3 to $260 for every product, and 206 of 700 rows sell below the Manufacturing Price yet show a profit. Cost analysis therefore uses COGS.
+- **Discount Band "None"** is stored as text in the Excel file and read as blank by pandas; the script restores it.
+- **Rounding:** SQL totals differ from pandas by a few dollars because values were rounded on import. Percentages agree to two decimals.
+- **Limitations:** single flat table, so the SQL is aggregation plus one window function (no joins). The dataset is a synthetic Microsoft sample, so findings describe this data, not a real business.
 
-## Key Findings
+## Files
 
-### Revenue & Profit
-- **Total Revenue:** $118.73M | **Total Profit:** $16.89M | **Profit Margin:** 14.2%
-- **2014** generated $92.3M vs $26.4M in 2013 — a 349.5% increase (note: 2013 is a partial year of 4 months only; this comparison reflects a partial-year baseline, not true annual growth)
-- **October 2014** was the peak month at $12.4M, driven by the Government segment ($6.2M) and Germany ($3.4M)
-- **March** is the weakest month at $5.6M total revenue across both years
+| File | Contents |
+|---|---|
+| `finance_analysis.sql` | 10 MySQL queries plus like-for-like variants |
+| `financial_sample_analysis.py` | pandas re-verification with reconciliation and data-quality checks |
+| `output.txt` | saved output of the script |
+| `requirements.txt` | pinned dependencies (pandas 3.0.6, openpyxl 3.1.5) |
+| `Finance_Dashboard.pbix` | Power BI report |
+| `screenshots/` | dashboard pages |
 
-### Segment Performance
-- **Government** dominates revenue at $52.5M (44.2% of total), followed by Small Business at $42.4M (35.7%)
-- **Enterprise** is the only loss-making segment at -3.1% margin despite generating $20M in revenue
-- **Channel Partners** has the highest profit margin at 73.1% but contributes only 1.5% of total revenue — the business's most efficient segment is also its smallest
-- Government and Small Business together represent ~80% of all revenue — heavy concentration risk
+## How to run
 
-### Discount Impact
-- **Overall discount rate: 7.8%** across all transactions
-- Higher discounts destroy margin across every segment without exception
-- Enterprise goes from +4.0% margin with no discount to -9.53% with high discounts — aggressive discounting is the primary driver of Enterprise losses
-- Channel Partners is discount-resistant: margin moves only from 75.0% (no discount) to 71.5% (high discount)
-- No-discount orders generate 22% margin vs 9% for high-discount orders
+1. Place `Financial Sample.csv.xlsx` (Microsoft's Financial Sample workbook) in the same folder as the script.
+2. `pip install -r requirements.txt`
+3. `python financial_sample_analysis.py`
 
-### Country Performance
-- **United States** leads revenue at $25.03M but holds the lowest profit margin at 11.97%
-- **Germany** has the highest profit margin at 15.66%
-- **France + Government** is the single most profitable country+segment combination at $2.7M profit
-- Enterprise segment is loss-making across all 5 countries — a systemic pricing or cost structure problem, not a regional one
-- Margin range across all 5 countries is only 3.7 percentage points (11.97%–15.66%), indicating consistent performance globally
-
-### Product Insights
-- **Paseo** is the highest revenue product at $33.01M with a 14.5% margin
-- **Amarilla** delivers the strongest profit margin at 15.86% despite being the second most expensive product to manufacture (24,440 total manufacturing cost)
-- **VTT** has the highest manufacturing cost (27,250) but lower margin than Amarilla (14.8%) — least efficient high-cost product
-- **Velo** is the lowest margin product at 12.64%
-- **Amarilla** and **VTT** have the lowest price-to-cost ratios (1.35x and 1.40x) — most vulnerable to cost increases or discount pressure
-- **Carretera** has the highest price-to-cost ratio (116.67x) — extremely low manufacturing cost relative to sale price
-
----
-
-## Dashboard Pages
-
-| Page | Description |
-|------|-------------|
-| **Overview** | KPI cards (Total Revenue, Profit, Margin, Units Sold), revenue and margin by segment and country |
-| **Executive Summary** | Executive commentary with 8 analytical insights, revenue trend Sep 2013–Dec 2014 |
-| **Country Performance** | Country KPIs, profit matrix by country+segment (with conditional formatting), revenue and margin combo chart, geographic map |
-| **Product Insights** | KPI cards, manufacturing cost vs margin by product, price-to-cost ratio by product |
-| **Insights & Analysis** | Discount efficiency vs profitability scatter plot, margin matrix by segment and discount band, segment revenue concentration, units sold and margin by discount band |
-
----
-
-## SQL Analysis
-
-All 10 business questions were answered using MySQL before building the dashboard. See [`finance_analysis.sql`](finance_analysis.sql) for all queries.
-
-**Techniques used:** `GROUP BY`, `ORDER BY`, `SUM()`, `ROUND()`, `AVG()`, Window Functions (`SUM() OVER()`)
-
----
-
-## Data Limitations
-
-- **2013 is a partial year** (September–December only). Year-over-year comparisons against 2013 should be interpreted with caution — the 349.5% revenue growth reflects a partial-year baseline, not true annual growth.
-- **Single flat table** — no relational joins required; all analysis performed on one table with 700 rows and 16 columns.
-- **Sale Price is constant at $350** across all products and transactions — price-to-cost ratios reflect manufacturing cost differences only, not pricing strategy variation.
-
----
-
-## Repository Structure
-
-```
-Microsoft-Financial-Sample-Analytics/
-│
-├── Finance_Dashboard.pbix          # Power BI dashboard file
-├── finance_analysis.sql            # All 10 SQL queries
-├── Financial Sample.xlsx           # Source dataset
-└── README.md                       # Project documentation
-```
-
----
-
-## Dashboard Preview
-
-![Dashboard Preview](Finance_Dashboard.gif)
-
----
-
-**Author:** Quratulain Tariq  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/quratulain-siddiqui)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Quratulain-qurat97)
+Tested with pandas 3.0.6 and openpyxl 3.1.5.
