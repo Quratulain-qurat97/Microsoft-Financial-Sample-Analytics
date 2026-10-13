@@ -33,8 +33,10 @@ Analysis of Microsoft's Financial Sample dataset (700 rows, 5 segments, 5 countr
 - **Manufacturing Price does not reconcile with COGS.** Implied unit COGS (COGS / Units Sold) ranges from $3 to $260 for every product, and 206 of 700 rows sell below the Manufacturing Price yet show a profit. Cost analysis therefore uses COGS.
 - **Discount Band "None"** is stored as text in the Excel file and read as blank by pandas; the script restores it.
 - **Rounding:** SQL totals differ from pandas by a few dollars because values were rounded on import. Percentages agree to two decimals.
-- **Limitations:** single flat table, so the SQL is aggregation plus one window function (no joins). The dataset is a synthetic Microsoft sample, so findings describe this data, not a real business.
+- **Limitations:** single flat table, so the SQL is aggregation plus one window function (no joins). This is a sample dataset, so findings describe this data, not a real business.
 - **Data source:** Microsoft's Financial Sample workbook, available from [Microsoft Learn](https://learn.microsoft.com/en-us/power-bi/create-reports/sample-financial-download). The data belongs to Microsoft and is included here only so the analysis can be reproduced.
+
+  
 ## Files
 
 | File | Contents |
@@ -47,9 +49,11 @@ Analysis of Microsoft's Financial Sample dataset (700 rows, 5 segments, 5 countr
 | `screenshots/` | dashboard pages |
 
 ## How to run
+
 1. The workbook `Financial Sample.csv.xlsx` is included in this repo. Keep it in the same folder as the script.
-2. Place `Financial Sample.csv.xlsx` (Microsoft's Financial Sample workbook) in the same folder as the script.
-3. `pip install -r requirements.txt`
-4. `python financial_sample_analysis.py`
+2. `pip install -r requirements.txt`
+3. `python financial_sample_analysis.py`
+
+Tested with pandas 3.0.6 and openpyxl 3.1.5.
 
 Tested with pandas 3.0.6 and openpyxl 3.1.5.
