@@ -54,6 +54,4 @@ Analysis of Microsoft's Financial Sample dataset (700 rows, 5 segments, 5 countr
 2. `pip install -r requirements.txt`
 3. `python financial_sample_analysis.py`
 
-Tested with pandas 3.0.6 and openpyxl 3.1.5.
-
-Tested with pandas 3.0.6 and openpyxl 3.1.5.
+Tested with Python 3.14.7, pandas 3.0.6 and openpyxl 3.1.5.
